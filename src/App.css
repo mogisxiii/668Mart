@@ -1,0 +1,39 @@
+body {
+  margin: 0;
+  background: #f5f5f5;
+  font-family: Arial, sans-serif;
+}
+
+/* GRID CHUNG */
+.product-grid {
+  display: grid;
+  gap: 20px;
+  padding: 20px 25px;
+}
+
+/* 📱 MOBILE (mặc định) */
+.product-grid {
+  grid-template-columns: 1fr;
+}
+
+/* 📲 TABLET */
+@media (min-width: 600px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 💻 DESKTOP */
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* 🖥 MÀN HÌNH LỚN */
+@media (min-width: 1400px) {
+  .product-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
