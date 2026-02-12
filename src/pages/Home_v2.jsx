@@ -110,7 +110,7 @@ export default function Home_v2({ cart = [], setCart = () => {} }) {
       <header className="header">
         <div className="header-left">
           <img
-            src={config.logo || "/logo.png"}
+            src={config.logo ? config.logo : ""}
             alt="logo"
             className="logo"
           />
