@@ -1,98 +1,126 @@
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
-
-import { useState, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useMemo } from "react";
 import "./Home_v2.css";
-import logo from "../assets/logo.png";
-import noImg from "../assets/no-image.jpg";
 
 const API =
   "https://script.google.com/macros/s/AKfycbwSpMhJ9ctYsZhCFNmydGeU_1tBF99GS5-VaSt8fFeBNOkfSXyY67Jp8boyG1f10oSfVg/exec";
 
-export default function Home({ cart = [], setCart = () => {} }) {
+export default function Home_v2({ cart = [], setCart = () => {} }) {
   const [products, setProducts] = useState([]);
   const [banners, setBanners] = useState([]);
-  const [config, setConfig] = useState([]);
+  const [config, setConfig] = useState({});
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
-
-  const [priceFilter, setPriceFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [currentBanner, setCurrentBanner] = useState(0);
 
+  /* ================= FETCH API ================= */
   useEffect(() => {
     fetch(API)
-      .then(res => res.json())
-      .then(data => {
-        const mappedProducts = (data.products || []).map(p => ({
+      .then((res) => res.json())
+      .then((data) => {
+        const mappedProducts = (data.products || []).map((p) => ({
           id: p.id,
           name: p.name,
+          origin: p.origin,
           price: Number(p.price) || 0,
           oldPrice: Number(p.old_price) || 0,
-          rating: Number(p.rating) || 0,
-          sold: Number(p.sold) || 0,
-          img: p.image,
-          origin: p.origin,
-          originType: p.origin_type,
-          unit: p.unit || "kg",
-          discount: Number(p.discount) || 0,
-          tag: p.tag_type
+          image: p.image,
+          hot: p.tag_type === "Bán chạy",
+          sale: Number(p.discount) > 0,
+          originType: (p.origin_type || "").toLowerCase().trim(),
         }));
 
         const mappedBanners = (data.banners || [])
-          .filter(b => b.active === true)
+          .filter((b) => b?.active === true || b?.active === "TRUE")
           .sort((a, b) => Number(a.order) - Number(b.order));
+
+        const cfg = {};
+        (data.config || []).forEach((c) => {
+          cfg[c.key] = c.value;
+        });
 
         setProducts(mappedProducts);
         setBanners(mappedBanners);
-        setConfig(data.config || []);
+        setConfig(cfg);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
-  const getConfig = key => config.find(c => c.key === key)?.value === true;
+  /* ================= FAVICON ================= */
+  useEffect(() => {
+    if (!config.favicon) return;
 
-  const filtered = useMemo(() => {
+    let link =
+      document.querySelector("link[rel='icon']") ||
+      document.createElement("link");
+
+    link.rel = "icon";
+    link.href = config.favicon;
+    document.head.appendChild(link);
+  }, [config]);
+
+  /* ================= AUTO SLIDE ================= */
+  useEffect(() => {
+    if (banners.length < 2) return;
+
+    const interval = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [banners]);
+
+  /* ================= FILTER ================= */
+  const filteredProducts = useMemo(() => {
     return products
-      .filter(p => p.name?.toLowerCase().includes(keyword.toLowerCase()))
-      .filter(p => {
-        if (priceFilter === "low") return p.price < 50000;
-        if (priceFilter === "mid") return p.price >= 50000 && p.price < 100000;
-        if (priceFilter === "high") return p.price >= 100000;
-        return true;
-      })
-      .filter(p => {
-        if (typeFilter === "local") return p.originType === "nội địa";
-        if (typeFilter === "import") return p.originType === "nhập khẩu";
-        if (typeFilter === "best") return p.tag === "Bán chạy";
-        if (typeFilter === "sale") return p.discount > 0;
+      .filter((p) =>
+        p.name?.toLowerCase().includes(keyword.toLowerCase())
+      )
+      .filter((p) => {
+        if (typeFilter === "local")
+          return p.originType.includes("nội");
+
+        if (typeFilter === "import")
+          return p.originType.includes("nhập");
+
+        if (typeFilter === "sale")
+          return p.sale;
+
         return true;
       });
-  }, [products, keyword, priceFilter, typeFilter]);
+  }, [products, keyword, typeFilter]);
 
-  const addToCart = product => {
-    setCart(prev => {
-      const exist = prev.find(i => i.id === product.id);
+  /* ================= CART ================= */
+  const addToCart = (product) => {
+    setCart((prev) => {
+      const exist = prev.find((i) => i.id === product.id);
       return exist
-        ? prev.map(i =>
+        ? prev.map((i) =>
             i.id === product.id ? { ...i, qty: i.qty + 1 } : i
           )
         : [...prev, { ...product, qty: 1 }];
     });
   };
 
+  /* ================= UI ================= */
   return (
     <div className="page">
+      {/* ================= HEADER ================= */}
       <header className="header">
         <div className="header-left">
-          <img src={logo} className="logo" alt="logo" />
+          <img
+            src={config.logo || "/logo.png"}
+            alt="logo"
+            className="logo"
+          />
           <div>
-            <div className="brand">668 MART</div>
-            <div className="sub">Đặc sản trái cây theo mùa</div>
+            <div className="brand">
+              {config.siteName || "668Mart"}
+            </div>
+            <div className="sub">
+              {config.siteDescription || "Trái cây đặc sản"}
+            </div>
           </div>
         </div>
 
@@ -100,115 +128,106 @@ export default function Home({ cart = [], setCart = () => {} }) {
           className="search"
           placeholder="Tìm trái cây..."
           value={keyword}
-          onChange={e => setKeyword(e.target.value)}
+          onChange={(e) => setKeyword(e.target.value)}
         />
 
-        <Link to="/cart">
-          <button className="cart-btn">
-            🛒 {cart.reduce((a, b) => a + b.qty, 0)}
-          </button>
-        </Link>
+        <div className="cart-btn">
+          🛒 {cart.reduce((a, b) => a + b.qty, 0)}
+        </div>
       </header>
 
-      {/* HERO */}
+      {/* ================= HERO ================= */}
       {banners.length > 0 && (
         <section className="hero-banner">
-          <Swiper
-            modules={[Autoplay, Pagination, Navigation]}
-            autoplay={{ delay: 3500 }}
-            pagination={{ clickable: true }}
-            navigation
-            loop
+          <div
+            className="banner-slide"
+            style={{
+              backgroundImage: `url(${banners[currentBanner]?.image})`,
+            }}
           >
-            {banners.map(banner => (
-              <SwiperSlide key={banner.id}>
-                <div
-                  className="banner-slide"
-                  style={{ backgroundImage: `url(${banner.image})` }}
-                >
-                  <div
-                    className="banner-overlay"
-                    style={{
-                      background: banner.overlay_color,
-                      opacity: banner.overlay_opacity
-                    }}
-                  />
-                  <div
-                    className="banner-content"
-                    style={{ color: banner.text_color }}
-                  >
-                    <h2>{banner.title}</h2>
-                    <p>{banner.subtitle}</p>
-                    <a href={banner.button_link} className="banner-btn">
-                      {banner.button_text}
-                    </a>
-                  </div>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+            <div className="banner-overlay" />
+            <div className="banner-content">
+              <h2>{banners[currentBanner]?.title}</h2>
+              <p>{banners[currentBanner]?.subtitle}</p>
+            </div>
+          </div>
         </section>
       )}
 
-      {loading && <div className="loading">Đang tải sản phẩm...</div>}
+      {loading && <div style={{ padding: 40 }}>Đang tải sản phẩm...</div>}
 
+      {/* ================= SHOP ================= */}
       <div className="shop-layout">
-        {/* SIDEBAR */}
         <aside className="shop-filter">
+  <h3>Danh mục</h3>
 
-          <div className="filter-group">
-            <div className="filter-title">Lọc theo giá</div>
-            <button className={priceFilter === "all" ? "active-filter" : ""} onClick={() => { setPriceFilter("all"); setTypeFilter("all"); }}>Tất cả</button>
-            <button className={priceFilter === "low" ? "active-filter" : ""} onClick={() => setPriceFilter("low")}>Dưới 50k</button>
-            <button className={priceFilter === "mid" ? "active-filter" : ""} onClick={() => setPriceFilter("mid")}>50k–100k</button>
-            <button className={priceFilter === "high" ? "active-filter" : ""} onClick={() => setPriceFilter("high")}>Trên 100k</button>
-          </div>
+  <p
+    className={typeFilter === "local" ? "active-filter" : ""}
+    onClick={() => setTypeFilter("local")}
+  >
+    Trái cây nội địa
+  </p>
 
-          <div className="filter-group">
-            <div className="filter-title">Phân loại</div>
-            {getConfig("showLocalFilter") && (
-              <button className={typeFilter === "local" ? "active-filter" : ""} onClick={() => setTypeFilter("local")}>Nội địa</button>
-            )}
-            {getConfig("showImportFilter") && (
-              <button className={typeFilter === "import" ? "active-filter" : ""} onClick={() => setTypeFilter("import")}>Nhập khẩu</button>
-            )}
-            {getConfig("showBestFilter") && (
-              <button className={typeFilter === "best" ? "active-filter" : ""} onClick={() => setTypeFilter("best")}>Bán chạy</button>
-            )}
-            {getConfig("showFlashFilter") && (
-              <button className={typeFilter === "sale" ? "active-filter" : ""} onClick={() => setTypeFilter("sale")}>Flash Sale</button>
-            )}
-          </div>
+  <p
+    className={typeFilter === "import" ? "active-filter" : ""}
+    onClick={() => setTypeFilter("import")}
+  >
+    Trái cây nhập khẩu
+  </p>
 
-        </aside>
+  <p
+    className={typeFilter === "sale" ? "active-filter" : ""}
+    onClick={() => setTypeFilter("sale")}
+  >
+    Hàng giảm giá
+  </p>
 
-        {/* PRODUCTS */}
-        <main className="shop-products">
-          <div className="product-grid">
-            {filtered.map(p => (
-              <div key={p.id} className="card">
-                <div className="card-img">
-                  {p.tag && <span className="badge-left">{p.tag}</span>}
-                  {p.discount > 0 && <span className="badge-right">-{p.discount}%</span>}
-                  <img src={p.img} alt={p.name} onError={e => (e.target.src = noImg)} />
-                </div>
+  <p
+    className={typeFilter === "all" ? "active-filter" : ""}
+    onClick={() => setTypeFilter("all")}
+  >
+    Tất cả
+  </p>
+</aside>
 
-                <div className="card-body">
-                  <div className="title">{p.name}</div>
-                  <div className="origin">{p.origin} • {p.originType}</div>
-                  <div className="rating">⭐ {p.rating} | Đã bán {p.sold}</div>
 
-                  <div className="price-box">
-                    {p.oldPrice > 0 && <span className="old">{p.oldPrice.toLocaleString()}đ</span>}
-                    <span className="new">{p.price.toLocaleString()}đ/{p.unit}</span>
-                  </div>
-
-                  <button className="add-btn" onClick={() => addToCart(p)}>+ Thêm vào giỏ</button>
-                </div>
+        <div className="product-grid">
+          {filteredProducts.map((p) => (
+            <div className="product-card" key={p.id}>
+              <div className="card-img">
+                <img src={p.image} alt={p.name} />
+                {p.hot && <div className="badge-hot">HOT</div>}
+                {p.sale && <div className="badge-sale">SALE</div>}
               </div>
-            ))}
-          </div>
-        </main>
+
+              <div className="card-body">
+                <div className="title">{p.name}</div>
+                <div className="origin">{p.origin}</div>
+                <div className="rating">⭐⭐⭐⭐⭐</div>
+
+                {/* ===== PRICE FIX ===== */}
+                <div className="price">
+                  {p.oldPrice > 0 && (
+                    <span className="old-price">
+                      {p.oldPrice.toLocaleString()}đ
+                    </span>
+                  )}
+
+                  <span className="new-price">
+                    {p.price.toLocaleString()}đ
+                  </span>
+                </div>
+
+                <button
+                  className="add-btn"
+                  onClick={() => addToCart(p)}
+                >
+                  Thêm vào giỏ
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
