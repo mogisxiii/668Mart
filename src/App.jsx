@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-import Home from "./pages/Home";
+import Home_v2 from "./pages/Home_v2";
 import CartPage from "./CartPage";
 import CheckoutPage from "./CheckoutPage";
 
@@ -18,10 +18,15 @@ function App() {
   }, [cart]);
 
   return (
-    <Router>
+    <Router
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <Routes>
         {/* 🏠 Trang chủ */}
-        <Route path="/" element={<Home cart={cart} setCart={setCart} />} />
+        <Route path="/" element={<Home_v2 cart={cart} setCart={setCart} />} />
 
         {/* 🛒 Giỏ hàng */}
         <Route path="/cart" element={<CartPage cart={cart} setCart={setCart} />} />
@@ -37,3 +42,4 @@ function App() {
 }
 
 export default App;
+
