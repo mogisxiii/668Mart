@@ -109,10 +109,11 @@ export default function Home_v2({ cart = [], setCart = () => {} }) {
       {/* ================= HEADER ================= */}
       <header className="header">
         <div className="header-left">
-          <img 
-  src="https://qunpsptcjpquurcoiemb.supabase.co/storage/v1/object/public/668Mart%20Org/logo668.jpg" 
+        <img 
+  src="/logo668.jpg" 
   alt="668Mart"
 />
+
 
           <div>
             <div className="brand">
