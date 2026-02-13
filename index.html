@@ -3,6 +3,46 @@
   <head>
     <meta charset="UTF-8" />
 
+    <!-- Responsive -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary SEO -->
+    <title>668Mart - Đặc sản trái cây sạch | Giao nhanh toàn quốc</title>
+
+    <meta
+      name="description"
+      content="668Mart chuyên cung cấp trái cây sạch, đặc sản miền Tây, trái cây nhập khẩu cao cấp. Giao hàng nhanh - đảm bảo tươi ngon mỗi ngày."
+    />
+
+    <meta
+      name="keywords"
+      content="trái cây sạch, đặc sản miền Tây, trái cây nhập khẩu, 668mart, cam, xoài, sầu riêng"
+    />
+
+    <meta name="author" content="668Mart" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#16a34a" />
+
+    <!-- Open Graph (Facebook, Zalo, Messenger) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="668Mart - Đặc sản trái cây sạch" />
+    <meta
+      property="og:description"
+      content="Trái cây sạch - đặc sản miền Tây - giao nhanh toàn quốc."
+    />
+    <meta property="og:image" content="/logo668.jpg" />
+    <meta property="og:url" content="https://668mart.vn" />
+    <meta property="og:locale" content="vi_VN" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="668Mart - Trái cây sạch mỗi ngày" />
+    <meta
+      name="twitter:description"
+      content="Chuyên cung cấp trái cây sạch, nhập khẩu, đặc sản miền Tây."
+    />
+    <meta name="twitter:image" content="/logo668.jpg" />
+
     <!-- Favicon -->
     <link
       rel="icon"
@@ -11,18 +51,31 @@
       href="/favicon668_64.png"
     />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- SEO -->
-    <title>668Mart - Đặc sản trái cây sạch</title>
-    <meta
-      name="description"
-      content="Chuyên cung cấp trái cây sạch, đặc sản miền Tây, giao hàng nhanh."
-    />
+    <!-- Structured Data (Google Rich Result) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "668Mart",
+        "image": "https://668mart.vn/logo668.jpg",
+        "description": "Cửa hàng chuyên cung cấp trái cây sạch và đặc sản miền Tây.",
+        "url": "https://668mart.vn",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "VN"
+        }
+      }
+    </script>
   </head>
 
   <body>
     <div id="root"></div>
+
+    <!-- Main React Entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

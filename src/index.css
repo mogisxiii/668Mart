@@ -1,78 +1,20 @@
-/* ================= RESET ================= */
+/* ===== FIX OVERFLOW GLOBAL ===== */
 * {
   box-sizing: border-box;
+}
+
+html, body {
   margin: 0;
   padding: 0;
-}
-
-/* ================= ROOT BASE FIX ================= */
-/* QUAN TRỌNG: giúp app chiếm full màn hình */
-html, body, #root {
+  overflow-x: hidden;
   width: 100%;
-  min-height: 100vh;
-}
-
-/* ❌ BỎ flex ở body và root (nguyên nhân làm layout co lại) */
-body {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  color: #213547;
-  background: #f5f6f8;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ================= PAGE CONTAINER ================= */
-/* Tất cả trang React sẽ dùng class này */
-.page {
-  width: 100%;
-}
-
-/* ================= LINK ================= */
-a {
-  font-weight: 500;
-  color: #2e7d32;
-  text-decoration: none;
-  transition: 0.2s;
-}
-a:hover {
-  color: #1b5e20;
-}
-
-/* ================= BUTTON GLOBAL ================= */
-button {
-  border-radius: 8px;
-  border: none;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 600;
-  background-color: #2e7d32;
-  color: white;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-button:hover {
-  background-color: #1b5e20;
-  transform: translateY(-1px);
-}
-
-/* ================= IMAGES SAFE ================= */
-img {
   max-width: 100%;
-  display: block;
 }
 
-/* ================= SCROLLBAR NICE LOOK ================= */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.15);
-  border-radius: 10px;
-}
-html, body, #root {
+#root {
   width: 100%;
-  margin: 0;
-  padding: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
+
 
