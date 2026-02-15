@@ -1,9 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import Home_v2 from "./pages/Home_v2";
 import CartPage from "./CartPage";
 import CheckoutPage from "./CheckoutPage";
+import OrderSuccess from "./pages/OrderSuccess";
 
 function App() {
   // 🛒 Load cart từ localStorage khi mở web
@@ -18,28 +19,45 @@ function App() {
   }, [cart]);
 
   return (
-    <Router
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
+    <BrowserRouter>
       <Routes>
+
         {/* 🏠 Trang chủ */}
-        <Route path="/" element={<Home_v2 cart={cart} setCart={setCart} />} />
+        <Route
+          path="/"
+          element={<Home_v2 cart={cart} setCart={setCart} />}
+        />
 
         {/* 🛒 Giỏ hàng */}
-        <Route path="/cart" element={<CartPage cart={cart} setCart={setCart} />} />
+        <Route
+          path="/cart"
+          element={<CartPage cart={cart} setCart={setCart} />}
+        />
 
         {/* 💳 Thanh toán */}
-        <Route path="/checkout" element={<CheckoutPage cart={cart} setCart={setCart} />} />
+        <Route
+          path="/checkout"
+          element={<CheckoutPage cart={cart} setCart={setCart} />}
+        />
+
+        {/* ✅ Trang đặt hàng thành công */}
+        <Route
+          path="/order-success"
+          element={<OrderSuccess setCart={setCart} />}
+        />
 
         {/* ❌ Route lạ → về trang chủ */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
+
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
 export default App;
+
+
 

@@ -1,10 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function CheckoutPage({ cart, setCart }) {
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const safeCart = cart || [];
 
@@ -28,6 +31,8 @@ function CheckoutPage({ cart, setCart }) {
       return;
     }
 
+    setLoading(true);
+
     const orderId = "DH" + Date.now();
 
     const orderData = {
@@ -50,48 +55,29 @@ function CheckoutPage({ cart, setCart }) {
       });
 
       const result = await res.json();
-      console.log("Server trả về:", result);
 
       if (result.result === "success") {
-        alert("🎉 Đặt hàng thành công!\nMã đơn: " + orderId);
         setCart([]);
-        setName("");
-        setPhone("");
-        setAddress("");
+
+        navigate("/order-success", {
+          state: { orderId, total, products: safeCart }
+        });
       } else {
         alert("❌ Server lỗi, chưa lưu đơn!");
       }
     } catch (err) {
       console.error("Lỗi gửi đơn:", err);
       alert("❌ Lỗi gửi đơn hàng!");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const inputStyle = {
-    display: "block",
-    width: "100%",
-    padding: "10px",
-    marginBottom: "10px",
-    borderRadius: "6px",
-    border: "1px solid #ccc",
-  };
-
-  const orderBtn = {
-    marginTop: "15px",
-    background: "#4CAF50",
-    color: "white",
-    border: "none",
-    padding: "12px 20px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-  };
-
   return (
-    <div style={{ padding: "30px", fontFamily: "Arial", background: "#f5f5f5", minHeight: "100vh" }}>
+    <div style={{ padding: "30px", background: "#f5f5f5", minHeight: "100vh" }}>
       <h2>🧾 Trang thanh toán</h2>
 
-      <Link to="/cart">
+      <Link to="/">
         <button style={{
           marginBottom: "15px",
           background: "#ff9800",
@@ -101,7 +87,7 @@ function CheckoutPage({ cart, setCart }) {
           borderRadius: "6px",
           cursor: "pointer",
         }}>
-          ⬅ Quay lại giỏ hàng
+          ⬅ Quay lại trang chủ
         </button>
       </Link>
 
@@ -111,31 +97,72 @@ function CheckoutPage({ cart, setCart }) {
         borderRadius: "8px",
         boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
       }}>
+
         <h3>Thông tin khách hàng</h3>
 
-        <input placeholder="Họ và tên" style={inputStyle} value={name} onChange={e => setName(e.target.value)} />
-        <input placeholder="Số điện thoại" style={inputStyle} value={phone} onChange={e => setPhone(e.target.value)} />
-        <input placeholder="Địa chỉ giao hàng" style={inputStyle} value={address} onChange={e => setAddress(e.target.value)} />
+        <input
+          placeholder="Họ và tên"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          style={inputStyle}
+        />
+
+        <input
+          placeholder="Số điện thoại"
+          value={phone}
+          onChange={e => setPhone(e.target.value)}
+          style={inputStyle}
+        />
+
+        <input
+          placeholder="Địa chỉ giao hàng"
+          value={address}
+          onChange={e => setAddress(e.target.value)}
+          style={inputStyle}
+        />
 
         <h3 style={{ marginTop: "20px" }}>Đơn hàng</h3>
+
         {safeCart.map((item, i) => (
           <div key={i}>
-            {item.name} x {item.qty} — {(item.price * item.qty).toLocaleString()} đ
+            {item.name} x {item.qty} —{" "}
+            {(item.price * item.qty).toLocaleString("vi-VN")} đ
           </div>
         ))}
 
         <h3 style={{ marginTop: "20px" }}>
-          💰 Tổng thanh toán: {total.toLocaleString()} đ
+          💰 Tổng thanh toán: {total.toLocaleString("vi-VN")} đ
         </h3>
 
-        <button onClick={handleOrder} style={orderBtn}>
-          Xác nhận đặt hàng
+        <button
+          onClick={handleOrder}
+          disabled={loading}
+          style={{
+            marginTop: "15px",
+            background: loading ? "#999" : "#ee4d2d",
+            color: "white",
+            border: "none",
+            padding: "12px 20px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "16px",
+            width: "100%"
+          }}
+        >
+          {loading ? "Đang xử lý..." : "Xác nhận đặt hàng"}
         </button>
       </div>
     </div>
   );
 }
 
+const inputStyle = {
+  display: "block",
+  width: "100%",
+  padding: "10px",
+  marginBottom: "10px",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+};
+
 export default CheckoutPage;
-
-
